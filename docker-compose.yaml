@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  admin:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8006:8000"
+    depends_on:
+      - api_laravel
+      - cache
+    volumes:
+      - .:/app
+
+  api_laravel:
+    image: mysql:latest
+    environment:
+      MYSQL_DATABASE: api-laravel
+      MYSQL_USER: root
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
+    volumes:
+      - ./storage/dbdata:/var/lib/mysql
+    ports:
+      - "3319:3306"
+
+  cache:
+    image: redis:alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server --save 20 1 --loglevel warning
+    volumes:
+      - cache:/data
+volumes:
+  cache:
+    driver: local
+  api_laravel:
+    driver: local
+
